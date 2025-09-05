@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Sicherheitsprogramm – Tagesbasierte Verschlüsselung</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 40px; background: #f4f4f4; color: #222; }
+    h1 { font-size: 1.8em; }
+    textarea, input[type="text"] {
+      width: 100%; padding: 10px; font-size: 16px; margin: 10px 0;
+    }
+    button {
+      padding: 10px 20px; font-size: 16px; margin-right: 10px; cursor: pointer;
+    }
+    pre {
+      background: #eee; padding: 10px; white-space: pre-wrap; word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Sicherheitsprogramm (20-Zeichen, täglich gültig)</h1>
+
+  <p><strong>Datum:</strong> <span id="dateDisplay"></span></p>
+  <p><strong>Original-Zeichen (20):</strong> <span id="originalChars"></span></p>
+  <p><strong>Chiffre-Zeichen (20):</strong> <span id="chiffreChars"></span></p>
+
+  <textarea id="inputText" rows="3" placeholder="Nachricht eingeben..."></textarea><br>
+  <button onclick="encrypt()">🔒 Verschlüsseln</button>
+  <button onclick="decrypt()">🔓 Entschlüsseln</button>
+
+  <h3>Ausgabe:</h3>
+  <pre id="outputText"></pre>
+
+  <script>
+    const zeichenVorrat = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!§$%&/()=?+*-_.:,;<>^@[]{}#";
+
+    const dateToday = new Date().toISOString().split("T")[0];
+    document.getElementById("dateDisplay").textContent = dateToday;
+
+    // Hashfunktion mit SHA-256 als Seed-Grundlage
+    async function getDailySeed(date) {
+      const msgBuffer = new TextEncoder().encode(date);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Seeded Zufallsfunktion aus Hash
+    function seededRandom(seedHex) {
+      let seed = parseInt(seedHex.slice(0, 16), 16);
+      return function () {
+        seed ^= seed << 13;
+        seed ^= seed >>> 17;
+        seed ^= seed << 5;
+        return (seed >>> 0) / 0xFFFFFFFF;
+      };
+    }
+
+    // Tägliches Chiffre-Alphabet erzeugen
+    async function buildDailyCipher() {
+      const seedHex = await getDailySeed(dateToday);
+      const rand = seededRandom(seedHex);
+
+      const original = [];
+      while (original.length < 20) {
+        const c = zeichenVorrat[Math.floor(rand() * zeichenVorrat.length)];
+        if (!original.includes(c)) original.push(c);
+      }
+
+      const chiffre = [...original];
+      for (let i = chiffre.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [ch]()

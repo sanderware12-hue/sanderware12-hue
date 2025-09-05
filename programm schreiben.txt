@@ -1,0 +1,2 @@
+Bitte erstelle mit Python ein Such Programm Mit einem Feld wo ich einstellen kann C,d,E,F,H und alle Dateitypen automatisch und gleichzeitig doppelte Dateien sucht. Zusätzlich möchte ich entscheiden ob ich die Dateien lösche  mit einem Button " lösche doppelte Dateien. 
+Bitte kontrolliere das Programm nach Fehlern !

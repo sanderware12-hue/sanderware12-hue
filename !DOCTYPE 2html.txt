@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Tages-Chiffre Generator (14 Zeichen)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background-color: #f8f8f8; }
+    textarea, input { width: 100%; padding: 10px; margin-top: 10px; font-size: 16px; }
+    button { padding: 10px 20px; margin: 10px 5px 20px 0; font-size: 16px; cursor: pointer; }
+    pre { background: #eee; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Täglicher 14-Zeichen-Chiffre-Generator</h1>
+
+  <p><strong>Datum:</strong> <span id="datum"></span></p>
+  <p><strong>Original-Zeichen:</strong> <span id="originalChars"></span></p>
+  <p><strong>Chiffre-Zeichen:</strong> <span id="chiffreChars"></span></p>
+
+  <textarea id="inputText" rows="3" placeholder="Nachricht hier eingeben..."></textarea><br>
+  <button onclick="encrypt()">🔒 Verschlüsseln</button>
+  <button onclick="decrypt()">🔓 Entschlüsseln</button>
+
+  <h3>Ausgabe:</h3>
+  <pre id="outputText"></pre>
+
+  <script>
+    const zeichenVorrat = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"§$%&/()=?`´+*~#'-_.:,;<>|^°@[]{}";
+
+    // Hilfsfunktion: einfache Pseudozufallszahl aus Seed (Datum)
+    function seededRandom(seed) {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < seed.length; i++) {
+        h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+      }
+      return () => {
+        h += h << 13; h ^= h >>> 7;
+        h += h << 3;  h ^= h >>> 17;
+        h += h << 5;
+        return (h >>> 0) / 4294967295;
+      };
+    }
+
+    // 1. Datum als Seed
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    document.getElementById("datum").textContent = today;
+
+    // 2. Tägliche Zeichenliste mit Seed-Zufall
+    function getDailyChiffre(seed, count, pool) {
+      const rand = seededRandom(seed);
+      const chars = [];
+      while (chars.length < count) {
+        const c = pool[Math.floor(rand() * pool.length)];
+        if (!chars.includes(c)) chars.push(c);
+      }
+      const shuffled = [...chars].sort(() => rand() - 0.5);
+      return { original: chars, chiffre: shuffled };
+    }
+
+    const { original, chiffre } = getDailyChiffre(today, 14, zeichenVorrat);
+
+    document.getElementById("originalChars").textContent = original.join(" ");
+    document.getElementById("chiffreChars").textContent = chiffre.join(" ");
+
+    // Verschlüsselung
+    function encrypt() {
+      const input = document.getElementById("inputText").value;
+      let output = "";
+      for (let char of input)

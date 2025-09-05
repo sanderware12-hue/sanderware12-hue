@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Chiffre Generator (14 Zeichen)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f4; }
+    textarea, input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    pre { background: #eaeaea; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Chiffre Generator mit 14 Zeichen</h1>
+
+  <p><strong>Original-Zeichen:</strong> <span id="originalChars"></span></p>
+  <p><strong>Chiffre-Zeichen:</strong> <span id="chiffreChars"></span></p>
+
+  <textarea id="inputText" rows="4" placeholder="Nachricht eingeben..."></textarea>
+  <button onclick="encrypt()">🔒 Verschlüsseln</button>
+  <button onclick="decrypt()">🔓 Entschlüsseln</button>
+
+  <h3>Ausgabe:</h3>
+  <pre id="outputText"></pre>
+
+  <script>
+    // 1. Mögliche Zeichen (alle Tastaturzeichen)
+    const zeichenVorrat = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"§$%&/()=?`´+*~#'-_.:,;<>|^°@[]{}";
+
+    // 2. 14 zufällige Zeichen auswählen
+    function getRandomUniqueChars(count, pool) {
+      const chars = [];
+      while (chars.length < count) {
+        const char = pool[Math.floor(Math.random() * pool.length)];
+        if (!chars.includes(char)) {
+          chars.push(char);
+        }
+      }
+      return chars;
+    }
+
+    const original = getRandomUniqueChars(14, zeichenVorrat);
+    const chiffre = [...original].sort(() => 0.5 - Math.random());
+
+    // 3. DOM-Elemente anzeigen
+    document.getElementById("originalChars").textContent = original.join(" ");
+    document.getElementById("chiffreChars").textContent = chiffre.join(" ");
+
+    // 4. Verschlüsseln
+    function encrypt() {
+      const input = document.getElementById("inputText").value;
+      let output = "";
+      for (let char of input) {
+        const index = original.indexOf(char);
+        output += index !== -1 ? chiffre[index] : char;
+      }
+      document.getElementById("outputText").textContent = output;
+    }
+
+    // 5. Entschlüsseln
+    function decrypt() {
+      const input = document.getElementById("inputText").value;
+      let output = "";
+      for (let char of input) {
+        const index = chiffre.indexOf(char);
+        output += index !== -1 ? original[index] : char;
+      }
+      document.getElementById("outputText").textContent = output;
+    }
+  </script>
+
+</body>
+</html>

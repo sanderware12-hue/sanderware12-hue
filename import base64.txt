@@ -1,0 +1,58 @@
+import base64
+from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Cipher import AES
+import tkinter as tk
+from tkinter import messagebox
+
+# Funktion zur Verschlüsselung des eingegebenen Passworts
+def encrypt_password():
+    try:
+        # Das eingegebene Passwort aus dem GUI
+        password = entry_password.get()
+
+        # Beispiel für Salt und IV (intern festgelegt)
+        salt_b64 = "L9pVh1a+PoI+62g8YWyWGg=="
+        iv_b64 = "Z6H0N3g7w3HV6MN/OlK6YQ=="
+        salt = base64.b64decode(salt_b64)
+        iv = base64.b64decode(iv_b64)
+
+        # Erstellen des Schlüssels aus Passwort und Salt mittels PBKDF2
+        key = PBKDF2(password, salt, dkLen=32, count=100000)
+
+        # Verschlüsselung mit AES im CBC-Modus
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+
+        # Padding hinzufügen (AES erfordert Blockgröße 16)
+        padded_password = password + (16 - len(password) % 16) * chr(16 - len(password) % 16)
+        ciphertext = cipher.encrypt(padded_password.encode('utf-8'))
+
+        # Base64-kodierte Ausgabe der verschlüsselten Daten
+        ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
+        
+        # Ausgabe der verschlüsselten Daten
+        entry_ciphertext.delete(0, tk.END)
+        entry_ciphertext.insert(0, ciphertext_b64)
+
+        # Rückmeldung
+        messagebox.showinfo("Erfolg", f"Passwort wurde verschlüsselt!\n\nVerschlüsselter Text: {ciphertext_b64}")
+    except Exception as e:
+        messagebox.showerror("Fehler", f"Ein Fehler ist aufgetreten: {str(e)}")
+
+root = tk.Tk()
+root.title("AES Passwort Verschlüsselung")
+
+# Eingabefeld für das Passwort
+tk.Label(root, text="Passwort (zum Verschlüsseln)").grid(row=0, column=0)
+entry_password = tk.Entry(root, width=50)
+entry_password.grid(row=0, column=1)
+
+# Ausgabe des verschlüsselten Passworts
+tk.Label(root, text="Verschlüsselter Text (Base64)").grid(row=1, column=0)
+entry_ciphertext = tk.Entry(root, width=50)
+entry_ciphertext.grid(row=1, column=1)
+
+# Verschlüsselungs-Button
+encrypt_button = tk.Button(root, text="Verschlüsseln", command=encrypt_password)
+encrypt_button.grid(row=2, column=0, columnspan=2)
+
+root.mainloop()

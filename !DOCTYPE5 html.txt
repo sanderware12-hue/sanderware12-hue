@@ -1,0 +1,45 @@
+!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hochsicheres AES-256 Verschlüsselungsprogramm</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1-crypto-js.js"></script>
+</head>
+<body>
+    <h1>AES-256 Verschlüsselungsprogramm</h1>
+
+    <label for="inputMessage">Nachricht:</label>
+    <textarea id="inputMessage" rows="4" cols="50"></textarea><br><br>
+
+    <label for="encryptionKey">Verschlüsselungsschlüssel (mind. 32 Zeichen):</label>
+    <input type="text" id="encryptionKey" size="32" /><br><br>
+
+    <button onclick="encryptMessage()">Nachricht Verschlüsseln</button>
+
+    <h3>Verschlüsselte Nachricht:</h3>
+    <textarea id="encryptedMessage" rows="4" cols="50" readonly></textarea><br><br>
+
+    <script>
+        // Funktion zur Verschlüsselung der Nachricht mit AES-256
+        function encryptMessage() {
+            var message = document.getElementById("inputMessage").value;
+            var key = document.getElementById("encryptionKey").value;
+
+            if (key.length < 32) {
+                alert("Der Schlüssel muss mindestens 32 Zeichen lang sein.");
+                return;
+            }
+
+            // Aktuelles Datum als Teil des Parameters
+            var currentDate = new Date().toISOString();
+
+            // Verschlüsseln der Nachricht mit AES-256
+            var encryptedMessage = CryptoJS.AES.encrypt(message + currentDate, key).toString();
+
+            // Verschlüsselte Nachricht anzeigen
+            document.getElementById("encryptedMessage").value = encryptedMessage;
+        }
+    </script>
+</body>
+</html>

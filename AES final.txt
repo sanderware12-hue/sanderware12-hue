@@ -1,0 +1,99 @@
+mport tkinter as tk
+from tkinter import messagebox
+import base64
+from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+
+# Globale Konstanten
+PBKDF2_ITERATIONS = 100000
+KEY_LENGTH = 32 # 256 bits = 32 bytes
+SALT = b'L9PvHia+POi+62G8YWvWgg==' # Ein fester Salt für die Schlüsselerzeugung
+
+# Hauptfenster
+root = tk.Tk()
+root.title("AES-256 Verschlüsselung v4.0")
+root.geometry("600x400")
+
+# Widgets erstellen (einzeilige Felder)
+label_key = tk.Label(root, text="Schlüsselpasswort:")
+entry_key = tk.Entry(root, show="*") # Passwortfeld verbirgt die Eingabe
+
+label_plaintext = tk.Label(root, text="Text zum Verschlüsseln:")
+entry_plaintext = tk.Entry(root)
+
+label_ciphertext = tk.Label(root, text="Verschlüsselter Text:")
+entry_ciphertext = tk.Entry(root)
+
+label_decrypt_output = tk.Label(root, text="Entschlüsselter Text:")
+entry_decrypt_output = tk.Entry(root)
+
+
+# Funktionen
+def encrypt_text():
+    password = entry_key.get()
+    plaintext = entry_plaintext.get()
+    if not password or not plaintext:
+        messagebox.showerror("Fehler", "Schlüsselpasswort und Text dürfen nicht leer sein.")
+        return
+    try:
+        key = PBKDF2(password.encode('utf-8'), SALT, dkLen=KEY_LENGTH, count=PBKDF2_ITERATIONS)
+        cipher = AES.new(key, AES.MODE_EAX)
+        ciphertext, tag = cipher.encrypt_and_digest(pad(plaintext.encode('utf-8'), AES.block_size))
+        entry_ciphertext.delete(0, tk.END)
+        entry_ciphertext.insert(0, base64.b64encode(cipher.nonce + tag + ciphertext).decode('utf-8'))
+    except Exception as e:
+        messagebox.showerror("Fehler", f"Fehler bei der Verschlüsselung: {e}")
+
+def decrypt_text():
+    password = entry_key.get()
+    ciphertext_b64 = entry_ciphertext.get()
+    if not password or not ciphertext_b64:
+        messagebox.showerror("Fehler", "Schlüsselpasswort und verschlüsselter Text dürfen nicht leer sein.")
+        return
+    try:
+        ciphertext_bytes = base64.b64decode(ciphertext_b64)
+        nonce = ciphertext_bytes[:16]
+        tag = ciphertext_bytes[16:32]
+        ciphertext = ciphertext_bytes[32:]
+        key = PBKDF2(password.encode('utf-8'), SALT, dkLen=KEY_LENGTH, count=PBKDF2_ITERATIONS)
+        cipher = AES.new(key, AES.MODE_EAX, nonce)
+        decrypted_bytes = unpad(cipher.decrypt_and_verify(ciphertext, tag), AES.block_size)
+        
+        entry_decrypt_output.delete(0, tk.END)
+        entry_decrypt_output.insert(0, decrypted_bytes.decode('utf-8'))
+        
+    except Exception as e:
+        messagebox.showerror("Fehler", f"Fehler bei der Entschlüsselung: {e}")
+
+# Rechtsklick-Menü
+def create_context_menu(widget):
+    menu = tk.Menu(widget, tearoff=0)
+    menu.add_command(label="Ausschneiden", command=lambda: widget.event_generate("<<Cut>>"))
+    menu.add_command(label="Kopieren", command=lambda: widget.event_generate("<<Copy>>"))
+    menu.add_command(label="Einfügen", command=lambda: widget.event_generate("<<Paste>>"))
+    widget.bind("<Button-3>", lambda event: menu.tk_popup(event.x_root, event.y_root))
+
+create_context_menu(entry_key)
+create_context_menu(entry_plaintext)
+create_context_menu(entry_ciphertext)
+create_context_menu(entry_decrypt_output)
+
+# Positionierung und Buttons
+label_key.pack(pady=5)
+entry_key.pack(pady=5, padx=20, fill=tk.X)
+label_plaintext.pack(pady=5)
+entry_plaintext.pack(pady=5, padx=20, fill=tk.X)
+label_ciphertext.pack(pady=5)
+entry_ciphertext.pack(pady=5, padx=20, fill=tk.X)
+label_decrypt_output.pack(pady=5)
+entry_decrypt_output.pack(pady=5, padx=20, fill=tk.X)
+
+button_frame = tk.Frame(root)
+button_frame.pack(pady=10)
+button_encrypt = tk.Button(button_frame, text="Verschlüsseln", command=encrypt_text)
+button_encrypt.pack(side=tk.LEFT, padx=10)
+button_decrypt = tk.Button(button_frame, text="Entschlüsseln", command=decrypt_text)
+button_decrypt.pack(side=tk.LEFT, padx=10)
+
+root.mainloop()

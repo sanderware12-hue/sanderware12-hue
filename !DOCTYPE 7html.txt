@@ -1,0 +1,41 @@
+// Funktion zur Erstellung des AES-256 Verschlüsselungsschlüssels mit Passwort und Datum als Salt
+function generateKey(password, date) {
+    // PBKDF2 mit Passwort und Datum (Datum als Salt) zur Erzeugung eines sicheren Schlüssels
+    var key = CryptoJS.PBKDF2(password, date, {
+        keySize: 256 / 32,  // 256-bit Schlüssellänge
+        iterations: 1000    // Anzahl der Iterationen für zusätzliche Sicherheit
+    });
+    return key;
+}
+
+// Funktion zur Verschlüsselung eines Textes
+function encryptText(plainText, password) {
+    var date = new Date().toISOString().split('T')[0]; // Aktuelles Datum als Salt (YYYY-MM-DD)
+    var key = generateKey(password, date);
+    
+    var encrypted = CryptoJS.AES.encrypt(plainText, key);
+    return encrypted.toString();
+}
+
+// Funktion zur Entschlüsselung eines Textes
+function decryptText(encryptedText, password) {
+    var date = new Date().toISOString().split('T')[0]; // Aktuelles Datum als Salt (YYYY-MM-DD)
+    var key = generateKey(password, date);
+    
+    var bytes = CryptoJS.AES.decrypt(encryptedText, key);
+    var decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    
+    return decrypted;
+}
+
+// Beispiel
+var password = "SuperGeheimesPasswort";
+var textToEncrypt = "Das ist ein geheimer Text!";
+
+// Verschlüsseln
+var encryptedText = encryptText(textToEncrypt, password);
+console.log("Verschlüsselter Text: ", encryptedText);
+
+// Entschlüsseln
+var decryptedText = decryptText(encryptedText, password);
+console.log("Entschlüsselter Text: ", decryptedText);

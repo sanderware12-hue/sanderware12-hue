@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Sicherheits-Chiffre – Täglich + Passwort</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f7f7f7;
+    }
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Täglicher Chiffre-Generator mit Passwort (34 Zeichen)</h1>
+
+  <label><strong>🔑 Persönliches Passwort:</strong></label>
+  <input type="text" id="passwordInput" placeholder="z. B. dein Name, Geheimwort, etc.">
+
+  <p><strong>📅 Datum:</strong> <span id="dateDisplay"></span></p>
+  <p><strong>🔠 Original-Zeichen (34):</strong> <span id="originalChars"></span></p>
+  <p><strong>🔁 Chiffre-Zeichen (34):</strong> <span id="chiffreChars"></span></p>
+
+  <textarea id="inputText" rows="3" placeholder="🔏 Nachricht eingeben..."></textarea><br>
+  <button onclick="encrypt()">🔒 Verschlüsseln</button>
+  <button onclick="decrypt()">🔓 Entschlüsseln</button>
+
+  <h3>🧾 Ausgabe:</h3>
+  <pre id="outputText"></pre>
+
+  <script>
+    const zeichenVorrat = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!§$%&/()=?+*-_.:,;<>^@[]{}#~";
+    const dateToday = new Date().toISOString().split("T")[0];
+    document.getElementById("dateDisplay").textContent = dateToday;
+
+    let cipherMap = null;
+
+    async function getSeed(password) {
+      const encoder = new TextEncoder();
+      const input = password + "|" + dateToday;
+      const data = encoder.encode(input);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hashBuffer));
+    }
+
+    function seededRandom(seedArray) {
+      let i = 0;
+      return () => {
+        const val = seedArray[i % seedArray.length];
+        i++;
+        return val / 255;
+      };
+    }
+
+    async function buildCipher() {
+      const password = document.getElementById("passwordInput").value.trim();
+      if (!password) {
+        alert("Bitte gib ein Passwort ein.");
+        return;
+      }
+      const seed = await getSeed(password);
+      const rand = seededRandom(seed);
+
+      const original = [];
+      while (original.length < 34) {
+        const c = zeichenVorrat[Math.floor(rand() * zeichenVorrat.length)];
+        if (!original.includes(c)) original.push(c);
+      }
+
+      const chiffre = [...original];
+      for (let i = chiffre.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [chiffre[i], chiffre[j]] = [chiffre[j], chiffre[i]];
+      }
+
+      document.getElementById("originalChars").textContent = original.join(" ");
+      document.getElementById(

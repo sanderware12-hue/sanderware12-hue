@@ -1,0 +1,32 @@
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID+A/6kJ8qPetq5rHyqstF5knEt392G7WEqz2L7CGnSR
+
+
+git config --global SwMainwohl@outlook.de
+
+
+git add .
+git commit -m "Initialer Commit"
+git remote add origin https://github.com/dein-benutzername/dein-repository-name.git
+git push -u origin main
+
+
+
+list neu
+
+deb http://de.archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse
+deb-src http://de.archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse
+
+deb http://de.archive.ubuntu.com/ubuntu/ noble-updates main restricted universe multiverse
+deb-src http://de.archive.ubuntu.com/ubuntu/ noble-updates main restricted universe multiverse
+
+deb http://de.archive.ubuntu.com/ubuntu/ noble-backports main restricted universe multiverse
+deb-src http://de.archive.ubuntu.com/ubuntu/ noble-backports main restricted universe multiverse
+
+deb http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+deb-src http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+
+
+
+config 
+
+MIRRORS=( "http://de.archive.ubuntu.com/ubuntu/" "http://security.ubuntu.com/ubuntu/" )

@@ -8,8 +8,8 @@ from datetime import datetime
 
 # Globale Konstanten
 PBKDF2_ITERATIONS = 100000
-KEY_LENGTH = 32 # 256 bits = 32 bytes
-FIXED_PASSWORD = "MeinFestesPasswort123" # Festes Passwort für die Verschlüsselung
+KEY_LENGTH = 32  # 256 bits = 32 bytes
+FIXED_PASSWORD = "MeinFestesPasswort123"  # Festes Password für die Verschlüsselung
 
 # Hauptfenster
 root = tk.Tk()
@@ -30,6 +30,7 @@ entry_ciphertext = tk.Entry(root)
 label_decrypt_output = tk.Label(root, text="Entschlüsselter Text:")
 entry_decrypt_output = tk.Entry(root)
 
+
 # Funktionen
 def is_valid_date(date_str):
     try:
@@ -38,41 +39,57 @@ def is_valid_date(date_str):
     except ValueError:
         return False
 
+
 def derive_key_with_date(password, date_str):
-    salt_with_date = b'L9PvHia+POi+62G8YWvWgg==' + date_str.encode('utf-8')
-    return PBKDF2(password.encode('utf-8'), salt_with_date, dklen=KEY_LENGTH, count=PBKDF2_ITERATIONS)
+    salt_with_date = b"L9PvHia+POi+62G8YWvWgg==" + date_str.encode("utf-8")
+    return PBKDF2(
+        password.encode("utf-8"),
+        salt_with_date,
+        dkLen=KEY_LENGTH,
+        count=PBKDF2_ITERATIONS,
+    )
+
 
 def encrypt_text():
     date_str = entry_date.get()
     plaintext = entry_plaintext.get()
-    
+
     if not is_valid_date(date_str):
-        messagebox.showerror("Fehler", "Falsches Datum. Bitte verwenden Sie das Format DD.MM.YYYY.")
+        messagebox.showerror(
+            "Fehler", "Falsches Datum. Bitte verwenden Sie das Format DD.MM.YYYY."
+        )
         return
-    
+
     if not plaintext:
         messagebox.showerror("Fehler", "Text zum Verschlüsseln darf nicht leer sein.")
         return
-    
+
     try:
         key = derive_key_with_date(FIXED_PASSWORD, date_str)
         cipher = AES.new(key, AES.MODE_EAX)
-        ciphertext, tag = cipher.encrypt_and_digest(pad(plaintext.encode('utf-8'), AES.block_size))
-        
+        ciphertext, tag = cipher.encrypt_and_digest(
+            pad(plaintext.encode("utf-8"), AES.block_size)
+        )
+
         entry_ciphertext.delete(0, tk.END)
-        entry_ciphertext.insert(0, base64.b64encode(cipher.nonce + tag + ciphertext).decode('utf-8'))
-        
+        entry_ciphertext.insert(
+            0, base64.b64encode(cipher.nonce + tag + ciphertext).decode("utf-8")
+        )
+
     except Exception as e:
         messagebox.showerror("Fehler", f"Fehler bei der Verschlüsselung: {e}")
+
 
 def decrypt_text():
     date_str = entry_date.get()
     ciphertext_b64 = entry_ciphertext.get()
-    
+
     if not is_valid_date(date_str):
-        messagebox.showerror("Fehler", "Falsches Datum. Bitte verwenden Sie das Format DD.MM.YYYY.")
+        messagebox.showerror(
+            "Fehler", "Falsches Datum. Bitte verwenden Sie das Format DD.MM.YYYY."
+        )
         return
-        
+
     if not ciphertext_b64:
         messagebox.showerror("Fehler", "Verschlüsselter Text darf nicht leer sein.")
         return
@@ -85,26 +102,37 @@ def decrypt_text():
 
         key = derive_key_with_date(FIXED_PASSWORD, date_str)
         cipher = AES.new(key, AES.MODE_EAX, nonce)
-        decrypted_bytes = unpad(cipher.decrypt_and_verify(ciphertext, tag), AES.block_size)
-        
+        decrypted_bytes = unpad(
+            cipher.decrypt_and_verify(ciphertext, tag), AES.block_size
+        )
+
         entry_decrypt_output.delete(0, tk.END)
-        entry_decrypt_output.insert(0, decrypted_bytes.decode('utf-8'))
-        
+        entry_decrypt_output.insert(0, decrypted_bytes.decode("utf-8"))
+
     except Exception as e:
         # Hier ist die Fehlerbehandlung, um bei falschem Datum eine spezifische Meldung auszugeben
         if "MAC check failed" in str(e):
-             messagebox.showerror("Fehler", "Falsches Datum. Entschlüsselung fehlgeschlagen.")
+            messagebox.showerror(
+                "Fehler", "Falsches Datum. Entschlüsselung fehlgeschlagen."
+            )
         else:
-             messagebox.showerror("Fehler", f"Fehler bei der Entschlüsselung: {e}")
+            messagebox.showerror("Fehler", f"Fehler bei der Entschlüsselung: {e}")
 
 
 # Rechtsklick-Menü
 def create_context_menu(widget):
     menu = tk.Menu(widget, tearoff=0)
-    menu.add_command(label="Ausschneiden", command=lambda: widget.event_generate("<<Cut>>"))
-    menu.add_command(label="Kopieren", command=lambda: widget.event_generate("<<Copy>>"))
-    menu.add_command(label="Einfügen", command=lambda: widget.event_generate("<<Paste>>"))
+    menu.add_command(
+        label="Ausschneiden", command=lambda: widget.event_generate("<<Cut>>")
+    )
+    menu.add_command(
+        label="Kopieren", command=lambda: widget.event_generate("<<Copy>>")
+    )
+    menu.add_command(
+        label="Einfügen", command=lambda: widget.event_generate("<<Paste>>")
+    )
     widget.bind("<Button-3>", lambda event: menu.tk_popup(event.x_root, event.y_root))
+
 
 create_context_menu(entry_date)
 create_context_menu(entry_plaintext)

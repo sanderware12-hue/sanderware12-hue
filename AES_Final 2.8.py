@@ -13,22 +13,31 @@ FIXED_PASSWORD = "MeinFestesPasswort123" # Festes Passwort für die Verschlüsse
 
 # Hauptfenster
 root = tk.Tk()
-root.title("AES-256 Verschlüsselung v14.0")
+root.title("AES-256 Verschlüsselung v18.0")
 root.geometry("600x400")
+root.configure(bg="#F8F8F8") # Cremeweißer Hintergrund
+
+# Style für moderne UI-Elemente
+root.option_add('*Font', 'SegoeUI 10')
+root.option_add('*foreground', '#2c3e50')
+root.option_add('*background', '#F8F8F8')
+root.option_add('*Entry.background', '#ecf0f1')
+root.option_add('*Entry.foreground', '#2c3e50')
+root.option_add('*Entry.insertBackground', '#2c3e50')
 
 # Widgets erstellen
-label_date = tk.Label(root, text="Datum (DD.MM.YYYY):")
-entry_date = tk.Entry(root)
+label_date = tk.Label(root, text="Datum (DD.MM.YYYY):", bg="#F8F8F8", fg="#2c3e50")
+entry_date = tk.Entry(root, bg="#ecf0f1", fg="#2c3e50", insertbackground="#2c3e50", bd=1, relief="flat")
 entry_date.insert(0, datetime.now().strftime("%d.%m.%Y"))
 
-label_plaintext = tk.Label(root, text="Text zum Verschlüsseln:")
-entry_plaintext = tk.Entry(root)
+label_plaintext = tk.Label(root, text="Text zum Verschlüsseln:", bg="#F8F8F8", fg="#2c3e50")
+entry_plaintext = tk.Entry(root, bg="#ecf0f1", fg="#2c3e50", insertbackground="#2c3e50", bd=1, relief="flat")
 
-label_ciphertext = tk.Label(root, text="Verschlüsselter Text:")
-entry_ciphertext = tk.Entry(root)
+label_ciphertext = tk.Label(root, text="Verschlüsselter Text:", bg="#F8F8F8", fg="#2c3e50")
+entry_ciphertext = tk.Entry(root, bg="#ecf0f1", fg="#2c3e50", insertbackground="#2c3e50", bd=1, relief="flat")
 
-label_decrypt_output = tk.Label(root, text="Entschlüsselter Text:")
-entry_decrypt_output = tk.Entry(root)
+label_decrypt_output = tk.Label(root, text="Entschlüsselter Text:", bg="#F8F8F8", fg="#2c3e50")
+entry_decrypt_output = tk.Entry(root, bg="#ecf0f1", fg="#2c3e50", insertbackground="#2c3e50", bd=1, relief="flat")
 
 # Funktionen
 def is_valid_date(date_str):
@@ -70,7 +79,7 @@ def decrypt_text():
     ciphertext_b64 = entry_ciphertext.get()
     
     if not is_valid_date(date_str):
-        messagebox.showerror("Fehler", "Falsches Datum !.")
+        messagebox.showerror("Fehler", "Falsches Datum. Bitte verwenden Sie das Format DD.MM.YYYY.")
         return
         
     if not ciphertext_b64:
@@ -91,16 +100,14 @@ def decrypt_text():
         entry_decrypt_output.insert(0, decrypted_bytes.decode('utf-8'))
         
     except Exception as e:
-        # Hier ist die Fehlerbehandlung, um bei falschem Datum eine spezifische Meldung auszugeben
         if "MAC check failed" in str(e):
-             messagebox.showerror("Fehler", "Falsches Datum.")
+             messagebox.showerror("Fehler", "Falsches Datum. Entschlüsselung fehlgeschlagen.")
         else:
              messagebox.showerror("Fehler", f"Fehler bei der Entschlüsselung: {e}")
 
-
 # Rechtsklick-Menü
 def create_context_menu(widget):
-    menu = tk.Menu(widget, tearoff=0)
+    menu = tk.Menu(widget, tearoff=0, bg="#ecf0f1", fg="#2c3e50")
     menu.add_command(label="Ausschneiden", command=lambda: widget.event_generate("<<Cut>>"))
     menu.add_command(label="Kopieren", command=lambda: widget.event_generate("<<Copy>>"))
     menu.add_command(label="Einfügen", command=lambda: widget.event_generate("<<Paste>>"))
@@ -121,11 +128,11 @@ entry_ciphertext.pack(pady=5, padx=20, fill=tk.X)
 label_decrypt_output.pack(pady=5)
 entry_decrypt_output.pack(pady=5, padx=20, fill=tk.X)
 
-button_frame = tk.Frame(root)
+button_frame = tk.Frame(root, bg="#F8F8F8")
 button_frame.pack(pady=10)
-button_encrypt = tk.Button(button_frame, text="Verschlüsseln", command=encrypt_text)
+button_encrypt = tk.Button(button_frame, text="Verschlüsseln", command=encrypt_text, bg="#1abc9c", fg="#FFFFFF", relief="flat")
 button_encrypt.pack(side=tk.LEFT, padx=10)
-button_decrypt = tk.Button(button_frame, text="Entschlüsseln", command=decrypt_text)
+button_decrypt = tk.Button(button_frame, text="Entschlüsseln", command=decrypt_text, bg="#1abc9c", fg="#FFFFFF", relief="flat")
 button_decrypt.pack(side=tk.LEFT, padx=10)
 
 root.mainloop()

@@ -1,0 +1,20 @@
+list neu
+
+
+deb http://mirrors.dotsrc.org/ubuntu/ noble main restricted universe multiverse
+deb http://mirrors.fibianet.dk/ubuntu/ noble-updates main restricted universe multiverse
+deb http://mirror.netsite.dk/ubuntu/archive/ noble-backports main restricted universe multiverse
+deb http://mirrors.nic.funet.fi/ubuntu/ noble main restricted universe multiverse
+deb http://ftp.uni-stuttgart.de/ubuntu/ noble-updates main restricted universe multiverse
+deb http://mirror.webworld.ie/ubuntu/ noble-backports main restricted universe multiverse
+deb http://ftp.kaist.ac.kr/ubuntu/ noble main restricted universe multiverse
+deb http://mirror.bacloud.com/ubuntu-mirror/archive/ noble-updates main restricted universe multiverse
+deb http://mirrors.gbnetwork.com/ubuntu/ noble-backports main restricted universe multiverse
+deb http://mirror.ams.macarne.com/ubuntu/ noble main restricted universe multiverse
+deb http://mirror.fsmg.org.nz/ubuntu/ noble-updates main restricted universe multiverse
+deb http://no.mirrors.blix.com/ubuntu/ noble-backports main restricted universe multiverse
+deb http://no.archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse
+deb http://mirror.raiolanetworks.com/ubuntu/ noble-updates main restricted universe multiverse
+deb http://ftp.acc.umu.se/ubuntu/ noble-backports main restricted universe multiverse
+deb http://mirror.twds.com.tw/ubuntu/ noble-updates main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
